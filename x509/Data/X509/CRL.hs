@@ -10,6 +10,7 @@
 -- follows RFC5280 / RFC6818.
 --
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Data.X509.CRL
     ( CRL(..)
@@ -26,6 +27,8 @@ import Data.X509.AlgorithmIdentifier
 import Data.X509.ExtensionRaw
 import Data.X509.Internal
 
+import GHC.Generics
+
 -- | Describe a Certificate revocation list
 data CRL = CRL
     { crlVersion             :: Integer
@@ -35,14 +38,14 @@ data CRL = CRL
     , crlNextUpdate          :: Maybe DateTime
     , crlRevokedCertificates :: [RevokedCertificate]
     , crlExtensions          :: Extensions
-    } deriving (Show,Eq)
+    } deriving (Show, Eq, Generic)
 
 -- | Describe a revoked certificate identifiable by serial number.
 data RevokedCertificate = RevokedCertificate
     { revokedSerialNumber :: Integer
     , revokedDate         :: DateTime
     , revokedExtensions   :: Extensions
-    } deriving (Show,Eq)
+    } deriving (Show, Eq, Generic)
 
 instance ASN1Object CRL where
     toASN1 crl = encodeCRL crl

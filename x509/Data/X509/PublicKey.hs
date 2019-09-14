@@ -7,6 +7,8 @@
 --
 -- Public key handling in X.509 infrastructure
 --
+{-# LANGUAGE DeriveGeneric #-}
+
 module Data.X509.PublicKey
     ( PubKey(..)
     , PubKeyEC(..)
@@ -40,9 +42,11 @@ import Data.Word
 
 import qualified Data.ByteString as B
 
+import GHC.Generics
+
 -- | Serialized Elliptic Curve Point
 newtype SerializedPoint = SerializedPoint ByteString
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 -- | Elliptic Curve Public Key
 --
@@ -62,7 +66,7 @@ data PubKeyEC =
         { pubkeyEC_name      :: ECC.CurveName
         , pubkeyEC_pub       :: SerializedPoint
         }
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 -- | Public key types known and used in X.509
 data PubKey =
@@ -76,7 +80,7 @@ data PubKey =
     | PubKeyEd25519   Ed25519.PublicKey   -- ^ Ed25519 public key
     | PubKeyEd448     Ed448.PublicKey     -- ^ Ed448 public key
     | PubKeyUnknown OID B.ByteString -- ^ unrecognized format
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 -- Public key are in the format:
 --

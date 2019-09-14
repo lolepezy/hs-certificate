@@ -22,6 +22,8 @@
 -- Signed represent the pure data type for compliant cases, and SignedExact
 -- the real world situation of having to deal with compliant and non-compliant cases.
 --
+{-# LANGUAGE DeriveGeneric #-}
+
 module Data.X509.Signed
     (
     -- * Types
@@ -51,24 +53,26 @@ import Data.ASN1.Stream
 import Data.ASN1.BitArray
 import qualified Data.ASN1.BinaryEncoding.Raw as Raw (toByteString)
 
+import GHC.Generics
+
 -- | Represent a signed object using a traditional X509 structure.
 --
 -- When dealing with external certificate, use the SignedExact structure
 -- not this one.
-data (Show a, Eq a, ASN1Object a) => Signed a = Signed
+data Signed a = Signed
     { signedObject    :: a            -- ^ Object to sign
     , signedAlg       :: SignatureALG -- ^ Signature Algorithm used
     , signedSignature :: B.ByteString -- ^ Signature as bytes
-    } deriving (Show, Eq)
+    } deriving (Show, Eq, Generic)
 
 -- | Represent the signed object plus the raw data that we need to
 -- keep around for non compliant case to be able to verify signature.
-data (Show a, Eq a, ASN1Object a) => SignedExact a = SignedExact
+data SignedExact a = SignedExact
     { getSigned          :: Signed a     -- ^ get the decoded Signed data
     , exactObjectRaw     :: B.ByteString -- ^ The raw representation of the object a
                                          -- TODO: in later version, replace with offset in exactRaw
     , encodeSignedObject :: B.ByteString -- ^ The raw representation of the whole signed structure
-    } deriving (Show, Eq)
+    } deriving (Show, Eq, Generic)
 
 -- | Get the signed data for the signature
 getSignedData :: (Show a, Eq a, ASN1Object a)

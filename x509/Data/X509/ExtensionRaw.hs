@@ -7,6 +7,8 @@
 --
 -- extension marshalling
 --
+{-# LANGUAGE DeriveGeneric #-}
+
 module Data.X509.ExtensionRaw
     ( ExtensionRaw(..)
     , tryExtRawASN1
@@ -21,12 +23,14 @@ import Data.ASN1.BinaryEncoding
 import Data.X509.Internal
 import qualified Data.ByteString as B
 
+import GHC.Generics
+
 -- | An undecoded extension
 data ExtensionRaw = ExtensionRaw
     { extRawOID      :: OID    -- ^ OID of this extension
     , extRawCritical :: Bool   -- ^ if this extension is critical
     , extRawContent  :: B.ByteString -- ^ undecoded content
-    } deriving (Show,Eq)
+    } deriving (Show, Eq, Generic)
 
 tryExtRawASN1 :: ExtensionRaw -> Either String [ASN1]
 tryExtRawASN1 (ExtensionRaw oid _ content) =
@@ -40,7 +44,7 @@ extRawASN1 extRaw = either error id $ tryExtRawASN1 extRaw
 
 -- | a Set of 'ExtensionRaw'
 newtype Extensions = Extensions (Maybe [ExtensionRaw])
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance ASN1Object Extensions where
     toASN1 (Extensions Nothing) = \xs -> xs

@@ -8,6 +8,8 @@
 -- X.509 Distinguished names types and functions
 
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Data.X509.DistinguishedName
     ( DistinguishedName(..)
     , DistinguishedNameInner(..)
@@ -26,9 +28,11 @@ import           Data.Monoid
 import Data.ASN1.Types
 import Data.X509.Internal
 
+import GHC.Generics
+
 -- | A list of OID and strings.
 newtype DistinguishedName = DistinguishedName { getDistinguishedElements :: [(OID, ASN1CharacterString)] }
-    deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Ord, Generic)
 
 -- | Elements commonly available in a 'DistinguishedName' structure
 data DnElement =
@@ -37,7 +41,7 @@ data DnElement =
     | DnOrganization     -- ^ O
     | DnOrganizationUnit -- ^ OU
     | DnEmailAddress     -- ^ Email Address (legacy)
-    deriving (Show,Eq)
+    deriving (Show, Eq, Ord, Generic)
 
 instance OIDable DnElement where
     getObjectID DnCommonName       = [2,5,4,3]
@@ -53,7 +57,7 @@ getDnElement element (DistinguishedName els) = lookup (getObjectID element) els
 -- | Only use to encode a DistinguishedName without including it in a
 -- Sequence
 newtype DistinguishedNameInner = DistinguishedNameInner DistinguishedName
-    deriving (Show,Eq)
+    deriving (Show, Eq, Ord, Generic)
 
 #if MIN_VERSION_base(4,9,0)
 instance Semigroup DistinguishedName where

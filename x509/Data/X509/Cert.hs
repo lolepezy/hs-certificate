@@ -8,6 +8,7 @@
 -- X.509 Certificate types and functions
 --
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Data.X509.Cert (Certificate(..)) where
 
@@ -20,6 +21,8 @@ import Data.X509.DistinguishedName
 import Data.X509.ExtensionRaw
 import Data.Hourglass
 
+import GHC.Generics
+
 data CertKeyUsage =
           CertKeyUsageDigitalSignature
         | CertKeyUsageNonRepudiation
@@ -30,7 +33,7 @@ data CertKeyUsage =
         | CertKeyUsageCRLSign
         | CertKeyUsageEncipherOnly
         | CertKeyUsageDecipherOnly
-        deriving (Show, Eq)
+        deriving (Show, Eq, Generic)
 
 -- | X.509 Certificate type.
 --
@@ -45,7 +48,7 @@ data Certificate = Certificate
         , certSubjectDN    :: DistinguishedName      -- ^ Subject DN
         , certPubKey       :: PubKey                 -- ^ Public key
         , certExtensions   :: Extensions             -- ^ Extensions
-        } deriving (Show,Eq)
+        } deriving (Show, Eq, Generic)
 
 instance ASN1Object Certificate where
     toASN1   certificate = \xs -> encodeCertificateHeader certificate ++ xs

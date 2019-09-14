@@ -9,6 +9,8 @@
 --
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Data.X509.Ext
     ( Extension(..)
     -- * Common extension usually found in x509v3
@@ -46,6 +48,8 @@ import Data.X509.DistinguishedName
 import Control.Applicative
 import Control.Monad
 
+import GHC.Generics
+
 -- | key usage flag that is found in the key usage extension field.
 data ExtKeyUsageFlag =
       KeyUsage_digitalSignature -- (0)
@@ -57,7 +61,7 @@ data ExtKeyUsageFlag =
     | KeyUsage_cRLSign          -- (6)
     | KeyUsage_encipherOnly     -- (7)
     | KeyUsage_decipherOnly     -- (8)
-    deriving (Show,Eq,Ord,Enum)
+    deriving (Show, Eq, Ord, Enum, Generic)
 
 {-
 -- RFC 5280
@@ -143,7 +147,7 @@ instance Extension ExtBasicConstraints where
 
 -- | Describe key usage
 data ExtKeyUsage = ExtKeyUsage [ExtKeyUsageFlag]
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtKeyUsage where
     extOID = const [2,5,29,15]
@@ -161,7 +165,7 @@ data ExtKeyUsagePurpose =
     | KeyUsagePurpose_TimeStamping
     | KeyUsagePurpose_OCSPSigning
     | KeyUsagePurpose_Unknown OID
-    deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Generic)
 
 extKeyUsagePurposedOID :: [(OID, ExtKeyUsagePurpose)]
 extKeyUsagePurposedOID =
@@ -175,7 +179,7 @@ extKeyUsagePurposedOID =
 
 -- | Extended key usage extension
 data ExtExtendedKeyUsage = ExtExtendedKeyUsage [ExtKeyUsagePurpose]
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtExtendedKeyUsage where
     extOID = const [2,5,29,37]
@@ -192,7 +196,7 @@ instance Extension ExtExtendedKeyUsage where
 
 -- | Provide a way to identify a public key by a short hash.
 data ExtSubjectKeyId = ExtSubjectKeyId B.ByteString
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtSubjectKeyId where
     extOID = const [2,5,29,14]
@@ -217,12 +221,12 @@ data AltName =
     | AltNameIP  B.ByteString
     | AltNameXMPP String
     | AltNameDNSSRV String
-    deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Generic)
 
 -- | Provide a way to supply alternate name that can be
 -- used for matching host name.
 data ExtSubjectAltName = ExtSubjectAltName [AltName]
-    deriving (Show,Eq,Ord)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtSubjectAltName where
     extOID = const [2,5,29,17]
@@ -233,7 +237,7 @@ instance Extension ExtSubjectAltName where
 -- | Provide a mean to identify the public key corresponding to the private key
 -- used to signed a certificate.
 data ExtAuthorityKeyId = ExtAuthorityKeyId B.ByteString
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtAuthorityKeyId where
     extOID _ = [2,5,29,35]
@@ -246,7 +250,7 @@ instance Extension ExtAuthorityKeyId where
 
 -- | Identify how CRL information is obtained
 data ExtCrlDistributionPoints = ExtCrlDistributionPoints [DistributionPoint]
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 -- | Reason flag for the CRL
 data ReasonFlag =
@@ -259,13 +263,13 @@ data ReasonFlag =
     | Reason_CertificateHold
     | Reason_PrivilegeWithdrawn
     | Reason_AACompromise
-    deriving (Show,Eq,Ord,Enum)
+    deriving (Show, Eq, Ord, Enum, Generic)
 
 -- | Distribution point as either some GeneralNames or a DN
 data DistributionPoint =
       DistributionPointFullName [AltName]
     | DistributionNameRelative DistinguishedName
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtCrlDistributionPoints where
     extOID _ = [2,5,29,31]
@@ -339,7 +343,7 @@ flagsToBits flags = foldl bitArraySetBit bitArrayEmpty $ map (fromIntegral . fro
   where bitArrayEmpty = toBitArray (B.pack [0,0]) 7
 
 data ExtNetscapeComment = ExtNetscapeComment B.ByteString
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance Extension ExtNetscapeComment where
     extOID _ = [2,16,840,1,113730,1,13]

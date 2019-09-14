@@ -5,6 +5,8 @@
 -- Stability   : experimental
 -- Portability : unknown
 --
+{-# LANGUAGE DeriveGeneric #-}
+
 module Data.X509.AlgorithmIdentifier
     ( HashALG(..)
     , PubKeyALG(..)
@@ -13,6 +15,8 @@ module Data.X509.AlgorithmIdentifier
 
 import Data.ASN1.Types
 import Data.List (find)
+
+import GHC.Generics
 
 -- | Hash Algorithm
 data HashALG =
@@ -23,7 +27,7 @@ data HashALG =
     | HashSHA256
     | HashSHA384
     | HashSHA512
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 -- | Public Key Algorithm
 data PubKeyALG =
@@ -37,7 +41,7 @@ data PubKeyALG =
     | PubKeyALG_Ed448       -- ^ EdDSA 448 signature algorithm
     | PubKeyALG_DH          -- ^ Diffie Hellman Public Key algorithm
     | PubKeyALG_Unknown OID -- ^ Unknown Public Key algorithm
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 -- | Signature Algorithm, often composed of a public key algorithm and a hash
 -- algorithm.  For some signature algorithms the hash algorithm is intrinsic to
@@ -46,7 +50,7 @@ data SignatureALG =
       SignatureALG HashALG PubKeyALG
     | SignatureALG_IntrinsicHash PubKeyALG
     | SignatureALG_Unknown OID
-    deriving (Show,Eq)
+    deriving (Show, Eq, Generic)
 
 instance OIDable PubKeyALG where
     getObjectID PubKeyALG_RSA    = [1,2,840,113549,1,1,1]

@@ -27,7 +27,7 @@ data HashALG =
     | HashSHA256
     | HashSHA384
     | HashSHA512
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 -- | Public Key Algorithm
 data PubKeyALG =
@@ -41,7 +41,7 @@ data PubKeyALG =
     | PubKeyALG_Ed448       -- ^ EdDSA 448 signature algorithm
     | PubKeyALG_DH          -- ^ Diffie Hellman Public Key algorithm
     | PubKeyALG_Unknown OID -- ^ Unknown Public Key algorithm
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 -- | Signature Algorithm, often composed of a public key algorithm and a hash
 -- algorithm.  For some signature algorithms the hash algorithm is intrinsic to
@@ -50,7 +50,7 @@ data SignatureALG =
       SignatureALG HashALG PubKeyALG
     | SignatureALG_IntrinsicHash PubKeyALG
     | SignatureALG_Unknown OID
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance OIDable PubKeyALG where
     getObjectID PubKeyALG_RSA    = [1,2,840,113549,1,1,1]

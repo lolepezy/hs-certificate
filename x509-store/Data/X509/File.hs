@@ -3,14 +3,11 @@ module Data.X509.File
     , readKeyFile
     ) where
 
-import Control.Applicative
 import Data.ASN1.Types
-import Data.ASN1.BinaryEncoding
-import Data.ASN1.Encoding
 import Data.Maybe
 import qualified Data.X509 as X509
 import           Data.X509.Memory (pemToKey)
-import Data.PEM (pemParseLBS, pemContent, pemName, PEM)
+import Data.PEM (pemParseLBS, pemContent, PEM)
 import qualified Data.ByteString.Lazy as L
 
 readPEMs :: FilePath -> IO [PEM]

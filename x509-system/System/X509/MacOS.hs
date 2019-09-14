@@ -5,7 +5,6 @@ module System.X509.MacOS
 import Data.PEM (pemParseLBS, PEM(..))
 import System.Process
 import qualified Data.ByteString.Lazy as LBS
-import Control.Applicative
 import Data.Either
 
 import Data.X509

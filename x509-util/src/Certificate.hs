@@ -6,12 +6,10 @@ import qualified Data.ByteString as B
 import Data.X509
 import qualified Data.X509 as X509
 import qualified Data.X509.EC as X509
-import Data.List (find)
-import Data.PEM (pemParseBS, pemContent, pemName)
+import Data.PEM (pemParseBS, pemContent)
 import System.Console.GetOpt
 import System.Environment
 import Control.Monad
-import Control.Applicative ((<$>))
 import Data.Maybe
 import System.Exit
 import System.X509
@@ -20,9 +18,7 @@ import Data.X509.Validation
 import Data.Hourglass
 
 -- for signing/verifying certificate
-import Crypto.Hash
 import qualified Crypto.PubKey.RSA as RSA
-import qualified Crypto.PubKey.RSA.PKCS15 as RSA
 import qualified Crypto.PubKey.DSA as DSA
 import qualified Crypto.PubKey.ECC.Types as ECC
 
@@ -34,6 +30,7 @@ import Data.X509.Memory
 import Text.Printf
 import Numeric
 
+formatValidity :: (Timeable t1, Timeable t2) => (t1, t2) -> [Char]
 formatValidity (start,end) = p start ++ " to " ++ p end
   where p t = timePrint ("YYYY-MM-DD H:MI:S" :: String) t
 
@@ -43,6 +40,7 @@ hexdump bs = concatMap hex $ BA.unpack bs
             | n > 0xf   = showHex n ""
             | otherwise = "0" ++ showHex n ""
 
+hexdump' :: B.ByteString -> String
 hexdump' = hexdump
 
 tryUnserializePoint :: Maybe ECC.Curve
@@ -54,6 +52,7 @@ tryUnserializePoint mcurve pt@(SerializedPoint bs) =
         Just (ECC.Point x y) -> Right (x, y)
         Just ECC.PointO      -> error "unserializePoint returned PointO"
 
+showDN :: DistinguishedName -> IO ()
 showDN (X509.DistinguishedName dn) = mapM_ toStr dn
   where toStr (oid, cs@(ASN1CharacterString e t)) =
             putStrLn ("  " ++ key ++ ": " ++ value)
@@ -62,8 +61,8 @@ showDN (X509.DistinguishedName dn) = mapM_ toStr dn
                             Nothing -> show e ++ " " ++ show t ++ " (decoding to string failed)"
                             Just s  -> show s ++ " (encoding : " ++ show e ++ ")"
 
-showExts es@(Extensions Nothing) = do
-    return ()
+showExts :: Extensions -> IO ()
+showExts (Extensions Nothing) = return ()
 showExts es@(Extensions (Just exts)) = do
     mapM_ showExt exts
     putStrLn "known extensions decoded: "
@@ -88,14 +87,14 @@ showCertSmall signedCert = do
     putStrLn ("valid:  " ++ formatValidity (X509.certValidity cert))
     case X509.certPubKey cert of
         X509.PubKeyRSA pubkey     -> printf "public key: RSA (%d bits)\n" (RSA.public_size pubkey * 8)
-        X509.PubKeyDSA pubkey     -> printf "public key: DSA\n"
+        X509.PubKeyDSA _          -> printf "public key: DSA\n"
         X509.PubKeyEC (PubKeyEC_Named name _) -> printf "public key: ECDSA (curve %s)\n" (show name)
         X509.PubKeyEC _                       -> printf "public key: ECDSA (explicit curve)\n"
         X509.PubKeyX25519     _   -> printf "public key: ECDH (curve25519)\n"
         X509.PubKeyX448       _   -> printf "public key: ECDH (curve448)\n"
         X509.PubKeyEd25519    _   -> printf "public key: EdDSA (edwards25519)\n"
         X509.PubKeyEd448      _   -> printf "public key: EdDSA (edwards448)\n"
-        X509.PubKeyUnknown oid ws -> printf "public key: unknown: %s\n" (show oid)
+        X509.PubKeyUnknown oid _  -> printf "public key: unknown: %s\n" (show oid)
         pk                        -> printf "public key: %s\n" (show pk)
   where
     signed  = X509.getSigned signedCert
@@ -163,7 +162,7 @@ showCert signedCert = do
             printf "public key: %s\n" (show pk)
     case X509.certExtensions cert of
         (Extensions Nothing)   -> return ()
-        (Extensions (Just es)) -> putStrLn "extensions:" >> showExts (X509.certExtensions cert)
+        (Extensions (Just _))  -> putStrLn "extensions:" >> showExts (X509.certExtensions cert)
     putStrLn ("sigAlg: " ++ show sigalg)
     putStrLn ("sig:    " ++ show sigbits)
   where
@@ -234,7 +233,7 @@ showASN1 at = prettyPrint at
   where
     indent n = putStr (replicate n ' ')
 
-    prettyPrint n []                 = return ()
+    prettyPrint _ []                 = return ()
     prettyPrint n (x@(Start _) : xs) = indent n >> p x >> putStrLn "" >> prettyPrint (n+1) xs
     prettyPrint n (x@(End _) : xs)   = indent (n-1) >> p x >> putStrLn "" >> prettyPrint (n-1) xs
     prettyPrint n (x : xs)           = indent n >> p x >> putStrLn "" >> prettyPrint n xs
@@ -245,7 +244,7 @@ showASN1 at = prettyPrint at
     p (OctetString bs)       = putStr ("octetstring: " ++ hexdump bs)
     p (Null)                 = putStr "null"
     p (OID is)               = putStr ("OID: " ++ show is)
-    p (Real d)               = putStr "real"
+    p (Real _)               = putStr "real"
     p (Enumerated _)         = putStr "enum"
     p (Start Sequence)       = putStr "{"
     p (End Sequence)         = putStr "}"
@@ -253,22 +252,22 @@ showASN1 at = prettyPrint at
     p (End Set)              = putStr "]"
     p (Start (Container x y)) = putStr ("< " ++ show x ++ " " ++ show y)
     p (End (Container x y))   = putStr ("> " ++ show x ++ " " ++ show y)
-    p (ASN1String cs)        = putCS cs
-    p (ASN1Time TimeUTC time tz)      = putStr ("utctime: " ++ show time)
-    p (ASN1Time TimeGeneralized time tz) = putStr ("generalizedtime: " ++ show time)
-    p (Other tc tn x)        = putStr ("other(" ++ show tc ++ "," ++ show tn ++ ")")
+    p (ASN1String cs)         = putCS cs
+    p (ASN1Time TimeUTC time _)       = putStr ("utctime: " ++ show time)
+    p (ASN1Time TimeGeneralized time _)  = putStr ("generalizedtime: " ++ show time)
+    p (Other tc tn _)        = putStr ("other(" ++ show tc ++ "," ++ show tn ++ ")")
 
     putCS (ASN1CharacterString UTF8 t)         = putStr ("utf8string:" ++ show t)
-    putCS (ASN1CharacterString Numeric bs)     = putStr "numericstring:"
+    putCS (ASN1CharacterString Numeric _)      = putStr "numericstring:"
     putCS (ASN1CharacterString Printable t)    = putStr ("printablestring: " ++ show t)
     putCS (ASN1CharacterString T61 bs)         = putStr ("t61string:" ++ show bs)
-    putCS (ASN1CharacterString VideoTex bs)    = putStr "videotexstring:"
+    putCS (ASN1CharacterString VideoTex _)    = putStr "videotexstring:"
     putCS (ASN1CharacterString IA5 bs)         = putStr ("ia5string:" ++ show bs)
-    putCS (ASN1CharacterString Graphic bs)     = putStr "graphicstring:"
-    putCS (ASN1CharacterString Visible bs)     = putStr "visiblestring:"
-    putCS (ASN1CharacterString General bs)     = putStr "generalstring:"
+    putCS (ASN1CharacterString Graphic _)      = putStr "graphicstring:"
+    putCS (ASN1CharacterString Visible _)      = putStr "visiblestring:"
+    putCS (ASN1CharacterString General _)      = putStr "generalstring:"
     putCS (ASN1CharacterString UTF32 t)        = putStr ("universalstring:" ++ show t)
-    putCS (ASN1CharacterString Character bs)   = putStr "characterstring:"
+    putCS (ASN1CharacterString Character _)    = putStr "characterstring:"
     putCS (ASN1CharacterString BMP t)          = putStr ("bmpstring: " ++ show t)
 
 data X509Opts =
@@ -278,7 +277,7 @@ data X509Opts =
     | Validate
     | ValidationHost String
     | Help
-    deriving (Show,Eq)
+    deriving (Show, Eq, Ord)
 
 readPEMFile file = do
     content <- B.readFile file

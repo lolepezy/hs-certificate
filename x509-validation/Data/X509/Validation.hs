@@ -31,7 +31,6 @@ module Data.X509.Validation
     , module Data.X509.Validation.Signature
     ) where
 
-import Control.Applicative
 import Control.Monad (when)
 import Data.Default.Class
 import Data.ASN1.Types

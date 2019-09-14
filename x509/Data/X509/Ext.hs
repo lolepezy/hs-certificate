@@ -45,7 +45,6 @@ import Data.Proxy
 import Data.List (find)
 import Data.X509.ExtensionRaw
 import Data.X509.DistinguishedName
-import Control.Applicative
 import Control.Monad
 
 import GHC.Generics
@@ -130,7 +129,7 @@ extensionEncode critical ext
 
 -- | Basic Constraints
 data ExtBasicConstraints = ExtBasicConstraints Bool (Maybe Integer)
-    deriving (Show,Eq)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtBasicConstraints where
     extOID = const [2,5,29,19]
@@ -147,7 +146,7 @@ instance Extension ExtBasicConstraints where
 
 -- | Describe key usage
 data ExtKeyUsage = ExtKeyUsage [ExtKeyUsageFlag]
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtKeyUsage where
     extOID = const [2,5,29,15]
@@ -165,7 +164,7 @@ data ExtKeyUsagePurpose =
     | KeyUsagePurpose_TimeStamping
     | KeyUsagePurpose_OCSPSigning
     | KeyUsagePurpose_Unknown OID
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 extKeyUsagePurposedOID :: [(OID, ExtKeyUsagePurpose)]
 extKeyUsagePurposedOID =
@@ -179,7 +178,7 @@ extKeyUsagePurposedOID =
 
 -- | Extended key usage extension
 data ExtExtendedKeyUsage = ExtExtendedKeyUsage [ExtKeyUsagePurpose]
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtExtendedKeyUsage where
     extOID = const [2,5,29,37]
@@ -196,7 +195,7 @@ instance Extension ExtExtendedKeyUsage where
 
 -- | Provide a way to identify a public key by a short hash.
 data ExtSubjectKeyId = ExtSubjectKeyId B.ByteString
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtSubjectKeyId where
     extOID = const [2,5,29,14]
@@ -221,12 +220,12 @@ data AltName =
     | AltNameIP  B.ByteString
     | AltNameXMPP String
     | AltNameDNSSRV String
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 -- | Provide a way to supply alternate name that can be
 -- used for matching host name.
 data ExtSubjectAltName = ExtSubjectAltName [AltName]
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtSubjectAltName where
     extOID = const [2,5,29,17]
@@ -237,7 +236,7 @@ instance Extension ExtSubjectAltName where
 -- | Provide a mean to identify the public key corresponding to the private key
 -- used to signed a certificate.
 data ExtAuthorityKeyId = ExtAuthorityKeyId B.ByteString
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtAuthorityKeyId where
     extOID _ = [2,5,29,35]
@@ -250,7 +249,7 @@ instance Extension ExtAuthorityKeyId where
 
 -- | Identify how CRL information is obtained
 data ExtCrlDistributionPoints = ExtCrlDistributionPoints [DistributionPoint]
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 -- | Reason flag for the CRL
 data ReasonFlag =
@@ -269,7 +268,7 @@ data ReasonFlag =
 data DistributionPoint =
       DistributionPointFullName [AltName]
     | DistributionNameRelative DistinguishedName
-    deriving (Show, Eq, Generic)
+    deriving (Show, Eq, Ord, Generic)
 
 instance Extension ExtCrlDistributionPoints where
     extOID _ = [2,5,29,31]

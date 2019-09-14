@@ -11,11 +11,6 @@ module Data.X509.CertificateStore
 import Data.Char (isDigit, isHexDigit)
 import Data.Either (rights)
 import Data.List (foldl', isPrefixOf)
-#if MIN_VERSION_base(4,9,0)
-import           Data.Semigroup
-#else
-import           Data.Monoid
-#endif
 import Data.PEM (pemParseBS, pemContent)
 import Data.X509
 import qualified Data.Map as M

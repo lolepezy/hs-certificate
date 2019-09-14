@@ -33,7 +33,7 @@ data CertKeyUsage =
         | CertKeyUsageCRLSign
         | CertKeyUsageEncipherOnly
         | CertKeyUsageDecipherOnly
-        deriving (Show, Eq, Generic)
+        deriving (Show, Eq, Ord, Generic)
 
 -- | X.509 Certificate type.
 --

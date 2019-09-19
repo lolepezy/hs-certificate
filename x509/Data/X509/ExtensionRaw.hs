@@ -16,7 +16,6 @@ module Data.X509.ExtensionRaw
     , Extensions(..)
     ) where
 
-import Control.Applicative
 import Data.ASN1.Types
 import Data.ASN1.Encoding
 import Data.ASN1.BinaryEncoding

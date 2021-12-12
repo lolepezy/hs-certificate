@@ -68,32 +68,6 @@ instance OIDable PubKeyALG where
     getObjectID PubKeyALG_DH     = [1,2,840,10046,2,1]
     getObjectID (PubKeyALG_Unknown oid) = oid
 
--- sig_table :: [ (OID, SignatureALG) ]
--- sig_table =
---         [ ([1,2,840,113549,1,1,5], SignatureALG HashSHA1 PubKeyALG_RSA)
---         , ([1,2,840,113549,1,1,4], SignatureALG HashMD5 PubKeyALG_RSA)
---         , ([1,2,840,113549,1,1,2], SignatureALG HashMD2 PubKeyALG_RSA)
---         , ([1,2,840,113549,1,1,11], SignatureALG HashSHA256 PubKeyALG_RSA)
---         , ([1,2,840,113549,1,1,12], SignatureALG HashSHA384 PubKeyALG_RSA)
---         , ([1,2,840,113549,1,1,13], SignatureALG HashSHA512 PubKeyALG_RSA)
---         , ([1,2,840,113549,1,1,14], SignatureALG HashSHA224 PubKeyALG_RSA)
---         , ([1,2,840,10040,4,3],    SignatureALG HashSHA1 PubKeyALG_DSA)
---         , ([1,2,840,10045,4,1],    SignatureALG HashSHA1 PubKeyALG_EC)
---         , ([1,2,840,10045,4,3,1],  SignatureALG HashSHA224 PubKeyALG_EC)
---         , ([1,2,840,10045,4,3,2],  SignatureALG HashSHA256 PubKeyALG_EC)
---         , ([1,2,840,10045,4,3,3],  SignatureALG HashSHA384 PubKeyALG_EC)
---         , ([1,2,840,10045,4,3,4],  SignatureALG HashSHA512 PubKeyALG_EC)
---         , ([2,16,840,1,101,3,4,2,1],  SignatureALG HashSHA256 PubKeyALG_RSAPSS)
---         , ([2,16,840,1,101,3,4,2,2],  SignatureALG HashSHA384 PubKeyALG_RSAPSS)
---         , ([2,16,840,1,101,3,4,2,3],  SignatureALG HashSHA512 PubKeyALG_RSAPSS)
---         , ([2,16,840,1,101,3,4,2,4],  SignatureALG HashSHA224 PubKeyALG_RSAPSS)
---         , ([2,16,840,1,101,3,4,3,1],  SignatureALG HashSHA224 PubKeyALG_DSA)
---         , ([2,16,840,1,101,3,4,3,2],  SignatureALG HashSHA256 PubKeyALG_DSA)
---         , ([1,3,101,112], SignatureALG_IntrinsicHash PubKeyALG_Ed25519)
---         , ([1,3,101,113], SignatureALG_IntrinsicHash PubKeyALG_Ed448)
---         ]
-
-
 sig_table :: NullParam -> [ (OID, SignatureALG) ]
 sig_table np =
         [ ([1,2,840,113549,1,1,5], SignatureALG HashSHA1 PubKeyALG_RSA np)
@@ -118,32 +92,6 @@ sig_table np =
         , ([1,3,101,112], SignatureALG_IntrinsicHash PubKeyALG_Ed25519)
         , ([1,3,101,113], SignatureALG_IntrinsicHash PubKeyALG_Ed448)
         ]
-
--- sig_table1 :: [ (OID, SignatureALG) ]
--- sig_table1 =
---         [ ([1,2,840,113549,1,1,5], SignatureALG HashSHA1 PubKeyALG_RSA np)
---         , ([1,2,840,113549,1,1,4], SignatureALG HashMD5 PubKeyALG_RSA np)
---         , ([1,2,840,113549,1,1,2], SignatureALG HashMD2 PubKeyALG_RSA np)
---         , ([1,2,840,113549,1,1,11], SignatureALG HashSHA256 PubKeyALG_RSA np)
---         , ([1,2,840,113549,1,1,12], SignatureALG HashSHA384 PubKeyALG_RSA np)
---         , ([1,2,840,113549,1,1,13], SignatureALG HashSHA512 PubKeyALG_RSA np)
---         , ([1,2,840,113549,1,1,14], SignatureALG HashSHA224 PubKeyALG_RSA np)
---         , ([1,2,840,10040,4,3],    SignatureALG HashSHA1 PubKeyALG_DSA np)
---         , ([1,2,840,10045,4,1],    SignatureALG HashSHA1 PubKeyALG_EC np)
---         , ([1,2,840,10045,4,3,1],  SignatureALG HashSHA224 PubKeyALG_EC np)
---         , ([1,2,840,10045,4,3,2],  SignatureALG HashSHA256 PubKeyALG_EC np)
---         , ([1,2,840,10045,4,3,3],  SignatureALG HashSHA384 PubKeyALG_EC np)
---         , ([1,2,840,10045,4,3,4],  SignatureALG HashSHA512 PubKeyALG_EC np)
---         , ([2,16,840,1,101,3,4,2,1],  SignatureALG HashSHA256 PubKeyALG_RSAPSS np)
---         , ([2,16,840,1,101,3,4,2,2],  SignatureALG HashSHA384 PubKeyALG_RSAPSS np)
---         , ([2,16,840,1,101,3,4,2,3],  SignatureALG HashSHA512 PubKeyALG_RSAPSS np)
---         , ([2,16,840,1,101,3,4,2,4],  SignatureALG HashSHA224 PubKeyALG_RSAPSS np)
---         , ([2,16,840,1,101,3,4,3,1],  SignatureALG HashSHA224 PubKeyALG_DSA np)
---         , ([2,16,840,1,101,3,4,3,2],  SignatureALG HashSHA256 PubKeyALG_DSA np)
---         , ([1,3,101,112], SignatureALG_IntrinsicHash PubKeyALG_Ed25519)
---         , ([1,3,101,113], SignatureALG_IntrinsicHash PubKeyALG_Ed448)
---         ]  
-
 
 oidSig :: OID -> NullParam -> SignatureALG
 oidSig oid np = maybe (SignatureALG_Unknown oid) id $ lookup oid $ sig_table np

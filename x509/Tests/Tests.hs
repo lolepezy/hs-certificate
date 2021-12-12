@@ -106,24 +106,30 @@ instance Arbitrary SignatureALG where
     -- unfortunately as the encoding of this is a single OID as opposed to two OID,
     -- the testing need to limit itself to Signature ALG that has been defined in the OID database. 
     -- arbitrary = SignatureALG <$> arbitrary <*> arbitrary
-    arbitrary = elements
-        [ SignatureALG HashSHA1 PubKeyALG_RSA
-        , SignatureALG HashMD5 PubKeyALG_RSA
-        , SignatureALG HashMD2 PubKeyALG_RSA
-        , SignatureALG HashSHA256 PubKeyALG_RSA
-        , SignatureALG HashSHA384 PubKeyALG_RSA
-        , SignatureALG HashSHA512 PubKeyALG_RSA
-        , SignatureALG HashSHA224 PubKeyALG_RSA
-        , SignatureALG HashSHA1 PubKeyALG_DSA
-        , SignatureALG HashSHA224 PubKeyALG_DSA
-        , SignatureALG HashSHA256 PubKeyALG_DSA
-        , SignatureALG HashSHA224 PubKeyALG_EC
-        , SignatureALG HashSHA256 PubKeyALG_EC
-        , SignatureALG HashSHA384 PubKeyALG_EC
-        , SignatureALG HashSHA512 PubKeyALG_EC
-        , SignatureALG_IntrinsicHash PubKeyALG_Ed25519
-        , SignatureALG_IntrinsicHash PubKeyALG_Ed448
-        ]
+    arbitrary = elements $
+        let havingNulls = [ 
+                SignatureALG HashSHA1 PubKeyALG_RSA 
+                , SignatureALG HashMD5 PubKeyALG_RSA
+                , SignatureALG HashMD2 PubKeyALG_RSA
+                , SignatureALG HashSHA256 PubKeyALG_RSA
+                , SignatureALG HashSHA384 PubKeyALG_RSA
+                , SignatureALG HashSHA512 PubKeyALG_RSA
+                , SignatureALG HashSHA224 PubKeyALG_RSA
+                , SignatureALG HashSHA1 PubKeyALG_DSA
+                , SignatureALG HashSHA224 PubKeyALG_DSA
+                , SignatureALG HashSHA256 PubKeyALG_DSA
+                , SignatureALG HashSHA224 PubKeyALG_EC
+                , SignatureALG HashSHA256 PubKeyALG_EC
+                , SignatureALG HashSHA384 PubKeyALG_EC
+                , SignatureALG HashSHA512 PubKeyALG_EC
+                ]
+            noNulls = [
+                  SignatureALG_IntrinsicHash PubKeyALG_Ed25519, 
+                  SignatureALG_IntrinsicHash PubKeyALG_Ed448
+                ]
+            in map (\f -> f NullAbsent) havingNulls <>
+               map (\f -> f NullPresent) havingNulls <>
+               noNulls
 
 arbitraryBS r1 r2 = choose (r1,r2) >>= \l -> (B.pack <$> replicateM l arbitrary)
 

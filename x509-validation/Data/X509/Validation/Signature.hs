@@ -70,7 +70,7 @@ verifySignature :: SignatureALG -- ^ Signature algorithm used
                 -> ByteString   -- ^ Signature to verify
                 -> SignatureVerification
 verifySignature (SignatureALG_Unknown _) _ _ _ = SignatureFailed SignatureUnimplemented
-verifySignature (SignatureALG hashALG PubKeyALG_RSAPSS) pubkey cdata signature = case verifyF pubkey of
+verifySignature (SignatureALG hashALG PubKeyALG_RSAPSS _) pubkey cdata signature = case verifyF pubkey of
   Nothing    -> SignatureFailed SignatureUnimplemented
   Just f -> if f cdata signature
                then SignaturePass
@@ -83,7 +83,7 @@ verifySignature (SignatureALG hashALG PubKeyALG_RSAPSS) pubkey cdata signature =
       | hashALG == HashSHA224 = Just $ PSS.verify (PSS.defaultPSSParams SHA224) key
       | otherwise             = Nothing
     verifyF _                 = Nothing
-verifySignature (SignatureALG hashALG pubkeyALG) pubkey cdata signature
+verifySignature (SignatureALG hashALG pubkeyALG _) pubkey cdata signature
     | pubkeyToAlg pubkey == pubkeyALG = case verifyF pubkey of
                                             Nothing -> SignatureFailed SignatureUnimplemented
                                             Just f  -> if f cdata signature

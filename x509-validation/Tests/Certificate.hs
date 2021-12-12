@@ -150,10 +150,10 @@ getPubKey  AlgEd25519        key = PubKeyEd25519   key
 getPubKey  AlgEd448          key = PubKeyEd448     key
 
 getSignatureALG :: Alg pub priv -> SignatureALG
-getSignatureALG (AlgRSA    _   hash) = SignatureALG (getHashALG hash) PubKeyALG_RSA
-getSignatureALG (AlgRSAPSS _ _ hash) = SignatureALG (getHashALG hash) PubKeyALG_RSAPSS
-getSignatureALG (AlgDSA    _   hash) = SignatureALG (getHashALG hash) PubKeyALG_DSA
-getSignatureALG (AlgEC     _   hash) = SignatureALG (getHashALG hash) PubKeyALG_EC
+getSignatureALG (AlgRSA    _   hash) = SignatureALG (getHashALG hash) PubKeyALG_RSA NullAbsent
+getSignatureALG (AlgRSAPSS _ _ hash) = SignatureALG (getHashALG hash) PubKeyALG_RSAPSS NullAbsent
+getSignatureALG (AlgDSA    _   hash) = SignatureALG (getHashALG hash) PubKeyALG_DSA NullAbsent
+getSignatureALG (AlgEC     _   hash) = SignatureALG (getHashALG hash) PubKeyALG_EC NullAbsent
 getSignatureALG  AlgEd25519          = SignatureALG_IntrinsicHash PubKeyALG_Ed25519
 getSignatureALG  AlgEd448            = SignatureALG_IntrinsicHash PubKeyALG_Ed448
 

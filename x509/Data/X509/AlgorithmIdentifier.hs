@@ -145,15 +145,15 @@ sig_table np =
 --         ]  
 
 
-oidSig :: OID -> SignatureALG
-oidSig oid = maybe (SignatureALG_Unknown oid) id $ lookup oid $ sig_table NullAbsent
+oidSig :: OID -> NullParam -> SignatureALG
+oidSig oid np = maybe (SignatureALG_Unknown oid) id $ lookup oid $ sig_table np
 
 sigOID :: SignatureALG -> OID
 sigOID (SignatureALG_Unknown oid) = oid
 sigOID sig = maybe (error ("unknown OID for " ++ show sig)) fst $ find (sigEqUpToNull sig . snd) $ sig_table NullAbsent
 
 sigEqUpToNull :: SignatureALG -> SignatureALG -> Bool
-sigEqUpToNull (SignatureALG h1 pk1 _ ) (SignatureALG h2 pk2 _ ) = h1 == h2 && pk1 == pk2 
+sigEqUpToNull (SignatureALG h1 pk1 _) (SignatureALG h2 pk2 _) = h1 == h2 && pk1 == pk2 
 sigEqUpToNull s1 s2 = s1 == s2
 
 -- | PSS salt length. Always assume ``-sigopt rsa_pss_saltlen:-1``
@@ -166,22 +166,29 @@ saltLen _          = error "toASN1: X509.SignatureAlg.HashAlg: Unknown hash"
 
 instance ASN1Object SignatureALG where
     fromASN1 (Start Sequence:OID oid:Null:End Sequence:xs) =
-        case oidSig oid of
+        case oidSig oid NullPresent of
             SignatureALG_IntrinsicHash _ ->
                 Left "fromASN1: X509.SignatureALG: EdDSA requires absent parameter"
 
             signatureAlg -> Right (signatureAlg, xs)
 
     fromASN1 (Start Sequence:OID oid:End Sequence:xs) =
-        Right (oidSig oid, xs)
+        Right (oidSig oid NullAbsent, xs)
     fromASN1 (Start Sequence:OID [1,2,840,113549,1,1,10]:Start Sequence:Start _:Start Sequence:OID hash1:     End Sequence:End _:Start _:Start Sequence:OID [1,2,840,113549,1,1,8]:Start Sequence:OID _hash2:     End Sequence:End Sequence:End _:Start _: IntVal _iv: End _: End Sequence : End Sequence:xs) =
-        Right (oidSig hash1, xs)
+        Right (oidSig hash1 NullAbsent, xs)
     fromASN1 (Start Sequence:OID [1,2,840,113549,1,1,10]:Start Sequence:Start _:Start Sequence:OID hash1:Null:End Sequence:End _:Start _:Start Sequence:OID [1,2,840,113549,1,1,8]:Start Sequence:OID _hash2:Null:End Sequence:End Sequence:End _:Start _: IntVal _iv: End _: End Sequence : End Sequence:xs) =
-        Right (oidSig hash1, xs)
+        Right (oidSig hash1 NullPresent, xs)
     fromASN1 _ =
         Left "fromASN1: X509.SignatureALG: unknown format"
 
     toASN1 (SignatureALG_Unknown oid) = \xs -> Start Sequence:OID oid:Null:End Sequence:xs
-    toASN1 signatureAlg@(SignatureALG hashAlg PubKeyALG_RSAPSS _) = \xs -> Start Sequence:OID [1,2,840,113549,1,1,10]:Start Sequence:Start (Container Context 0):Start Sequence:OID (sigOID signatureAlg):End Sequence:End (Container Context 0):Start (Container Context 1): Start Sequence:OID [1,2,840,113549,1,1,8]:Start Sequence:OID (sigOID signatureAlg):End Sequence:End Sequence:End (Container Context 1):Start (Container Context 2):IntVal (saltLen hashAlg):End (Container Context 2):End Sequence:End Sequence:xs
+    toASN1 signatureAlg@(SignatureALG hashAlg PubKeyALG_RSAPSS NullAbsent) = \xs -> 
+             Start Sequence:OID [1,2,840,113549,1,1,10]:Start Sequence:Start (Container Context 0):Start Sequence:OID (sigOID signatureAlg):End Sequence:End (Container Context 0):Start (Container Context 1): Start Sequence:OID [1,2,840,113549,1,1,8]:Start Sequence:OID (sigOID signatureAlg):End Sequence:End Sequence:End (Container Context 1):Start (Container Context 2):IntVal (saltLen hashAlg):End (Container Context 2):End Sequence:End Sequence:xs
+    toASN1 signatureAlg@(SignatureALG hashAlg PubKeyALG_RSAPSS NullPresent) = \xs -> 
+             Start Sequence:OID [1,2,840,113549,1,1,10]:Start Sequence:Start (Container Context 0):Start Sequence:OID (sigOID signatureAlg):Null:End Sequence:End (Container Context 0):Start (Container Context 1): Start Sequence:OID [1,2,840,113549,1,1,8]:Start Sequence:OID (sigOID signatureAlg):Null:End Sequence:End Sequence:End (Container Context 1):Start (Container Context 2):IntVal (saltLen hashAlg):End (Container Context 2):End Sequence:End Sequence:xs
     toASN1 signatureAlg@(SignatureALG_IntrinsicHash _) = \xs -> Start Sequence:OID (sigOID signatureAlg):End Sequence:xs
+    toASN1 signatureAlg@(SignatureALG hashAlg _ np) = \xs -> 
+        case np of 
+            NullAbsent  -> Start Sequence:OID (sigOID signatureAlg):End Sequence:xs
+            NullPresent -> Start Sequence:OID (sigOID signatureAlg):Null:End Sequence:xs
     toASN1 signatureAlg = \xs -> Start Sequence:OID (sigOID signatureAlg):Null:End Sequence:xs
